@@ -1,0 +1,6 @@
+@ContentParserApi_HostAddress = http://localhost:5247
+
+GET {{ContentParserApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
