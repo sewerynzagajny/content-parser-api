@@ -6,10 +6,10 @@ namespace ContentParserApi.DTOs
 {
     public class PayLoadDto
     {
-        //[Required]
+        [Required]
         [JsonPropertyName("type")]
         public CheckType Type { get; set; }
-        //[Required]
+        [Required]
         [JsonPropertyName("content")]
         public string Content { get; set; } = string.Empty;
         

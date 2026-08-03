@@ -1,50 +1,62 @@
 # ContentParserApi
 
-A simple ASP.NET Core (`.NET 10`) API for parsing input content and returning a unified response format.
+ASP.NET Core Web API (`.NET 10`) for decoding Base64 payload content and parsing data in a unified response format.
 
-## What the application does
+## Overview
 
-The API exposes one endpoint that accepts content in one of two formats:
-- `CSV`
-- `INTERNAL_JSON`
-
-Then it:
-1. parses the provided `content`,
-2. builds a response with status and processed row count,
-3. attempts to decode Base64 values inside `data_processed`.
-
-## Endpoint
-
+The API exposes one endpoint:
 - **POST** `/api/v1/parse-content`
 - **Content-Type:** `application/json`
 
-### Request body
+Request payload format:
+
+```json
+{
+  "type": "CSV" | "INTERNAL_JSON",
+  "content": "..."
+}
+```
+
+`content` must be a Base64 string. After decoding, the API parses the decoded text according to `type`.
+
+## Processing flow
+
+1. Validate request model.
+2. Validate supported `type` (`CSV`, `INTERNAL_JSON`).
+3. Decode `content` from Base64.
+4. Parse decoded content:
+   - `CSV` -> collection of row objects
+   - `INTERNAL_JSON` -> validated JSON object/array
+5. Return unified success response.
+6. Handle errors globally via exception handler.
+
+## Sample requests
+
+### CSV
 
 ```json
 {
   "type": "CSV",
-  "content": "name,city\nSm9obiBEb2U=,V2Fyc2F3"
+  "content": "bmFtZSxlbWFpbApKYW4samFuQGV4YW1wbGUuY29t"
 }
 ```
 
-Supported `type` values:
-- `CSV`
-- `INTERNAL_JSON`
+(Base64 decoded value: `name,email\nJan,jan@example.com`)
 
-## Usage examples
-
-### 1) CSV
-
-#### Request
+### INTERNAL_JSON
 
 ```json
 {
-  "type": "CSV",
-  "content": "name,email\nSmFu,amFuQGV4YW1wbGUuY29t"
+  "type": "INTERNAL_JSON",
+  "content": "W3sidGl0bGUiOiJIZWxsbyIsInZhbHVlIjoiMTIzIn1d"
 }
 ```
 
-#### Sample response
+(Base64 decoded value: `[{"title":"Hello","value":"123"}]`)
+
+## Response format
+
+### Success
 
 ```json
 {
@@ -59,29 +71,12 @@ Supported `type` values:
 }
 ```
 
-### 2) INTERNAL_JSON
-
-#### Request
+### Error
 
 ```json
 {
-  "type": "INTERNAL_JSON",
-  "content": "[{\"title\":\"SGVsbG8=\",\"value\":\"123\"}]"
-}
-```
-
-#### Sample response
-
-```json
-{
-  "status": "Success",
-  "number_of_rows_processed": 1,
-  "data_processed": [
-	{
-	  "title": "Hello",
-	  "value": "123"
-	}
-  ]
+  "status": "Error",
+  "error_message": "Invalid base64 string"
 }
 ```
 
@@ -102,20 +97,20 @@ Swagger UI:
 
 ## Project structure
 
-- `Controllers/ParseContentController.cs` – API endpoint and error handling.
-- `Services/ParseService.cs` – `CSV` and `INTERNAL_JSON` parsing logic.
-- `Services/DecodeBase64Service.cs` – Base64 decoding attempt for output values.
-- `DTOs/PayLoadDto.cs` – input model.
-- `DTOs/ResponseDto.cs` – response model.
-- `Enums/CheckType.cs` – allowed input types.
+- `Controllers/ParseContentController.cs` - endpoint and flow orchestration.
+- `Services/DecodeBase64Service.cs` - Base64 decode validation and conversion.
+- `Services/ParseService.cs` - CSV and INTERNAL_JSON parsing.
+- `GlobalExceptions/GlobalExceptionHandler.cs` - centralized exception mapping.
+- `DTOs/PayLoadDto.cs` - input model.
+- `DTOs/ResponseDto.cs` - success response model.
+- `DTOs/ApiErrorDto.cs` - error response model.
+- `Enums/CheckType.cs` - supported types.
 
-## Error responses
+## Why .NET 10
 
-The API returns `status: "Error"` with a relevant message, for example when:
-- request body format is invalid,
-- input type is unsupported,
-- `CSV` or `INTERNAL_JSON` structure is invalid,
-- an unexpected server-side error occurs.
+I selected **.NET 10** because it is a stable modern version with long-term support.
+
+I intentionally did not target **.NET 8** for this project, because .NET 8 support ends on **November 10, 2026**.
 
 ## Technology stack
 
@@ -133,3 +128,8 @@ This project was created as a recruitment assignment demonstrating:
 - JSON parsing (with `System.Text.Json`)
 - Base64 decoding
 - Error handling
+
+## Future improvements
+
+- Unify model validation (`ModelState`) handling in the MVC pipeline to always return a consistent `ApiErrorDto` response format.
+- Extend global exception mapping to provide clearer HTTP status codes and error messages for invalid input scenarios.
