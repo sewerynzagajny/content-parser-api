@@ -43,23 +43,26 @@ namespace ContentParserApi.Controllers
 
             try
             {
-                ResponseDto parsedData = new ResponseDto();
+                if (payload.Type != Enums.CheckType.CSV && payload.Type != Enums.CheckType.InternalJson)
+                {
+                    return BadRequest(BuildErrorResponse("Unsupported type"));
+                }  
+                    
+               PayLoadDto decodePayLoad = _decodeBase64Service.DecodeBase64(payload);
                 ResponseDto response = new ResponseDto();
 
-                switch (payload.Type)
-                {
-                    case Enums.CheckType.CSV:
-                        parsedData = _parseService.CsvParse(payload);
-                        response = _decodeBase64Service.DecodeBase64(parsedData);
-                        break;
-                    case Enums.CheckType.InternalJson:
-                        parsedData = _parseService.InternalJsonParse(payload);
-                        response = _decodeBase64Service.DecodeBase64(parsedData);
-                        break;
-                    default:
-                       return BadRequest (BuildErrorResponse("Unsupported type"));
-                }
-                return Ok(response);
+                //switch (decodePayLoad.Type)
+                //{
+                //    case Enums.CheckType.CSV:
+                //      response = _parseService.CsvParse(decodePayLoad);
+                //        break;
+                //    case Enums.CheckType.InternalJson:
+                //      response = _parseService.InternalJsonParse(decodePayLoad);
+                //        break;
+                //    default:
+                //        return BadRequest(BuildErrorResponse("Unsupported type"));
+                //}
+                return Ok(decodePayLoad);
 
             }
             catch (ArgumentException ex)

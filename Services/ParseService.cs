@@ -100,13 +100,13 @@ namespace ContentParserApi.Services
                 {
                     numberOfRowsProcessed = contentParse.Count;
                 }
-                ResponseDto convert = new ResponseDto
+                ResponseDto paresed = new ResponseDto
                 {
                     Status = "Success",
                     NumberOfRowsProcessed = numberOfRowsProcessed,
                     DataProcessed = contentParse
                 };
-                return convert;
+                return paresed;
             }
             catch (Exception ex) when (ex is not ArgumentException && ex is not FormatException)
             {
