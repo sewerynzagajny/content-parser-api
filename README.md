@@ -84,7 +84,7 @@ Request payload format:
 
 From the project directory:
 
-1. `dotnet restore`
+1. `dotnet restore .\ContentParserApi.sln`
 2. `dotnet run`
 
 Default URLs (from `launchSettings.json`):
