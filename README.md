@@ -140,7 +140,7 @@ Swagger UI:
 - `DTOs/ResponseDto.cs` - success response model.
 - `DTOs/ApiErrorDto.cs` - error response model.
 - `Enums/CheckType.cs` - supported types.
-- - `Validations/` - application-level request validation.
+- `Validations/` - application-level request validation.
 
 ## Technology stack
 
