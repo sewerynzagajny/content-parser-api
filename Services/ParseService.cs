@@ -1,4 +1,5 @@
-﻿using ContentParserApi.DTOs;
+﻿using ContentParserApi.Strategies;
+using ContentParserApi.DTOs;
 using CsvHelper;
 using CsvHelper.Configuration;
 using System.Globalization;
@@ -8,81 +9,24 @@ namespace ContentParserApi.Services
 {
     public class ParseService
     {
-        public ResponseDto CsvParse(PayLoadDto payload)
+        private readonly IEnumerable<IParserStrategy> _strategies;
+
+        public ParseService(IEnumerable<IParserStrategy> strategy)
         {
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-            {
-                DetectColumnCountChanges = true,
-                IgnoreBlankLines = true
-            };
-
-            using var reader = new StringReader(payload.Content);
-            using var csv = new CsvReader(reader, config);
-
-            csv.Read();
-            csv.ReadHeader();
-
-            var contentParse = csv.GetRecords<dynamic>().ToList();
-
-            if (contentParse.Count == 0)
-            {
-                throw new FormatException("Invalid CSV structure");
-            }
-
-            foreach (dynamic item in contentParse)
-            {
-                var columns = (IDictionary<string, object>)item;
-
-                if (columns.Values.Any(value => value == null || string.IsNullOrWhiteSpace(value.ToString())) ||
-                    columns.Keys.Any(key => key == null || string.IsNullOrWhiteSpace(key.ToString())))
-                {
-                    throw new FormatException("Invalid CSV structure");
-                }
-            }
-
-            ResponseDto parsed = new ResponseDto
-            {
-                Status = "Success",
-                NumberOfRowsProcessed = contentParse.Count,
-                DataProcessed = contentParse
-            };
-
-            return parsed;
+            _strategies = strategy;
         }
 
-        public ResponseDto InternalJsonParse(PayLoadDto payload)
+        public ResponseDto GetParse(PayLoadDto decodedPayLoad)
         {
-            using JsonDocument doc = JsonDocument.Parse(payload.Content);
-
-            var contentParse = new List<object>();
-
-            if (doc.RootElement.ValueKind == JsonValueKind.Array)
+            var strategy = _strategies.FirstOrDefault(el => el.Type == decodedPayLoad.Type);
+            if (strategy == null)
             {
-                contentParse = JsonSerializer.Deserialize<List<object>>(payload.Content) ?? [];
-            }
-            else if (doc.RootElement.ValueKind == JsonValueKind.Object)
-            {
-                var parseTask = JsonSerializer.Deserialize<object>(payload.Content);
-                if (parseTask != null)
-                {
-                    contentParse.Add(parseTask);
-                }
-            }
-            else
-            {
-                throw new ArgumentException("Invalid INTERNAL_JSON structure");
+                throw new ArgumentOutOfRangeException(
+                        nameof(decodedPayLoad),
+                        $"Brak strategii prasowania dla typu {decodedPayLoad.Type}");
             }
 
-            int numberOfRowsProcessed = contentParse.Count;
-
-            ResponseDto parsed = new ResponseDto
-            {
-                Status = "Success",
-                NumberOfRowsProcessed = numberOfRowsProcessed,
-                DataProcessed = contentParse
-            };
-
-            return parsed;
+            return strategy.Parse(decodedPayLoad);
         }
     }
 }

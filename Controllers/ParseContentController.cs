@@ -21,32 +21,10 @@ namespace ContentParserApi.Controllers
         [Consumes("application/json")]
         public IActionResult PostPayLoad([FromBody] PayLoadDto payload)
         {
-            if (!ModelState.IsValid)
-            {
-                throw new FormatException("Invalid request payload. Incorrect body format or type");
-            }
+            var decodePayLoad = _decodeBase64Service.DecodeBase64(payload);
+            var response = _parseService.GetParse(decodePayLoad);
 
-            if (payload.Type != Enums.CheckType.CSV && payload.Type != Enums.CheckType.InternalJson)
-            {
-                throw new ArgumentOutOfRangeException("Unsupported type");
-            }
-
-            PayLoadDto decodePayLoad = _decodeBase64Service.DecodeBase64(payload);
-            ResponseDto response = new ResponseDto();
-
-            switch (decodePayLoad.Type)
-            {
-                case Enums.CheckType.CSV:
-                    response = _parseService.CsvParse(decodePayLoad);
-                    break;
-                case Enums.CheckType.InternalJson:
-                    response = _parseService.InternalJsonParse(decodePayLoad);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(payload.Type), payload.Type, "Unsupported type");
-            }
-
-            return Ok(response);
+            return Ok(response);   
         }
     }
 }
