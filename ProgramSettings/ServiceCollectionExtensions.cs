@@ -1,6 +1,7 @@
 ﻿using ContentParserApi.GlobalExceptions;
 using ContentParserApi.Services;
 using ContentParserApi.Strategies;
+using ContentParserApi.Validations;
 
 
 namespace ContentParserApi.ProgramSettings
@@ -19,6 +20,7 @@ namespace ContentParserApi.ProgramSettings
             services.AddSwaggerGen();
             services.AddScoped<IParserStrategy, CsvParseStrategy>();
             services.AddScoped<IParserStrategy, InternalJsonParseStrategy>();
+            services.AddScoped<Validation>();
             services.AddScoped<ParseService>();
             services.AddScoped<DecodeBase64Service>();
 

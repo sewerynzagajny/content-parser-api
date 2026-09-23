@@ -1,7 +1,7 @@
 ﻿using ContentParserApi.DTOs;
 using ContentParserApi.Enums;
 
-namespace ContentParserApi.Validation
+namespace ContentParserApi.Validations
 {
     public class Validation
     {

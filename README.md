@@ -29,7 +29,7 @@ This version introduces a parser refactor focused on extensibility and cleaner s
    - New folders introduced:
 	 - `Strategies/`
 	 - `ProgramSettings/`
-	 - `Validation/`
+	 - `Validations/`
 
 ## Overview
 
@@ -140,7 +140,7 @@ Swagger UI:
 - `DTOs/ResponseDto.cs` - success response model.
 - `DTOs/ApiErrorDto.cs` - error response model.
 - `Enums/CheckType.cs` - supported types.
-- - `Validation/` - application-level request validation.
+- - `Validations/` - application-level request validation.
 
 ## Technology stack
 
