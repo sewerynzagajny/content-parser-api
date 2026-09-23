@@ -140,6 +140,7 @@ Swagger UI:
 - `DTOs/ResponseDto.cs` - success response model.
 - `DTOs/ApiErrorDto.cs` - error response model.
 - `Enums/CheckType.cs` - supported types.
+- - `Validation/` - application-level request validation.
 
 ## Technology stack
 
@@ -161,7 +162,6 @@ This project was created as a recruitment assignment demonstrating:
 
 ## Future improvements
 
-- Add explicit parser strategy registrations in DI (`IParserStrategy` implementations).
 - Add tests for strategy selection and parser behavior.
-- Unify model validation (`ModelState`) handling to always return a consistent `ApiErrorDto` response format.
 - Extend global exception mapping to provide clearer HTTP status codes and error messages for invalid input scenarios.
+- Add support for CSV input with and without headers.
